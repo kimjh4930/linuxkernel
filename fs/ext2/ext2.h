@@ -350,6 +350,7 @@ struct ext2_inode {
 	} osd2;				/* OS dependent 2 */
 
 	__le32 i_ino2;			/* inode of other dev*/
+	__le32 test;
 };
 
 #define i_size_high	i_dir_acl
