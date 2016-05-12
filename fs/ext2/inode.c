@@ -1445,7 +1445,7 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 	int err = 0;
 
         printk(KERN_ALERT"[ext2/inode.c] __ext2_inode_write()\n");
-	printk(KERN_ALERT"[ext2/inode.c] ei->vfs_inode->i_ino : %u\n", ei->vfs_inode->i_ino);
+	printk(KERN_ALERT"[ext2/inode.c] ei->vfs_inode->i_ino : %u\n", ei->vfs_inode.i_ino);
 	if (IS_ERR(raw_inode))
  		return -EIO;
 
