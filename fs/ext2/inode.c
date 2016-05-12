@@ -1444,6 +1444,8 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 	int n;
 	int err = 0;
 
+        printk(KERN_ALERT"[ext2/inode.c] __ext2_inode_write()\n");
+	printk(KERN_ALERT"[ext2/inode.c] ei->vfs_inode->i_ino : %u\n", ei->vfs_inode->i_ino);
 	if (IS_ERR(raw_inode))
  		return -EIO;
 
@@ -1487,6 +1489,14 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 	raw_inode->i_frag = ei->i_frag_no;
 	raw_inode->i_fsize = ei->i_frag_size;
 	raw_inode->i_file_acl = cpu_to_le32(ei->i_file_acl);
+	
+	//add i_ino2
+	raw_inode->i_ino2 = cpu_to_le32(inode->i_ino2);
+
+	printk(KERN_ALERT"[ext2/inode.c] __ext2_inode_write()\n");
+	printk(KERN_ALERT"[ext2/inode.c] inode->i_ino2 : %lu\n", inode->i_ino2);
+	printk(KERN_ALERT"[ext2/inode.c] raw_inode->i_ino2 : %u\n", raw_inode->i_ino2);
+
 	if (!S_ISREG(inode->i_mode))
 		raw_inode->i_dir_acl = cpu_to_le32(ei->i_dir_acl);
 	else {
@@ -1533,6 +1543,13 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 		}
 	}
 	ei->i_state &= ~EXT2_STATE_NEW;
+
+	//add i_ino2
+        raw_inode->i_ino2 = cpu_to_le32(inode->i_ino2);
+
+        printk(KERN_ALERT"[ext2/inode.c] inode->i_ino2 : %lu\n", inode->i_ino2);
+        printk(KERN_ALERT"[ext2/inode.c] raw_inode->i_ino2 : %u\n", raw_inode->i_ino2);
+
 	brelse (bh);
 	return err;
 }
