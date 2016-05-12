@@ -608,6 +608,7 @@ struct inode {
 	atomic_t		i_readcount; /* struct files open RO */
 #endif
 	void			*i_private; /* fs or device private pointer */
+	unsigned long		i_ino2;
 };
 
 static inline int inode_unhashed(struct inode *inode)

@@ -193,6 +193,9 @@ struct inodes_stat_t {
 #define FS_NOCOW_FL			0x00800000 /* Do not cow file */
 #define FS_RESERVED_FL			0x80000000 /* reserved for ext2 lib */
 
+//add new frag for checking other dev
+#define FS_OTHER_DEV			0x01000000
+
 #define FS_FL_USER_VISIBLE		0x0003DFFF /* User visible flags */
 #define FS_FL_USER_MODIFIABLE		0x000380FF /* User modifiable flags */
 
