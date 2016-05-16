@@ -666,6 +666,16 @@ static int do_dentry_open(struct file *f,
 
 	path_get(&f->f_path);
 	inode = f->f_inode = f->f_path.dentry->d_inode;
+
+	if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) != 1){
+		printk(KERN_ALERT"[fs/open.c] do_dentry_open()\n");
+//		printk(KERN_ALERT"[fs/open.c] inode->i_sb->s_dev : %u\n", MINOR(inode->i_sb->s_dev));
+		printk(KERN_ALERT"[fs/open.c] ino : %u\n", inode->i_ino);
+		printk(KERN_ALERT"[fs/open.c] ino2 : %u\n", inode->i_ino2);
+		printk(KERN_ALERT"[fs/open.c] flag : %u\n", inode->i_storage_flag);
+	}
+	//printk(KERN_ALERT"[fs/open.c] inode->i_bdev->bd_dev : %u\n", inode->i_bdev->bd_dev);
+
 	if (f->f_mode & FMODE_WRITE && !special_file(inode->i_mode)) {
 		error = __get_file_write_access(inode, f->f_path.mnt);
 		if (error)

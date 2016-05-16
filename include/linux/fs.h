@@ -609,6 +609,7 @@ struct inode {
 #endif
 	void			*i_private; /* fs or device private pointer */
 	unsigned long		i_ino2;
+	unsigned int		i_storage_flag;
 };
 
 static inline int inode_unhashed(struct inode *inode)

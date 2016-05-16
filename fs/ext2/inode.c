@@ -1316,6 +1316,8 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 	uid_t i_uid;
 	gid_t i_gid;
 
+	printk(KERN_ALERT"[ext2/inode.c] ext2_iget()\n");
+
 	inode = iget_locked(sb, ino);
 	if (!inode)
 		return ERR_PTR(-ENOMEM);
@@ -1347,6 +1349,10 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 	inode->i_mtime.tv_sec = (signed)le32_to_cpu(raw_inode->i_mtime);
 	inode->i_atime.tv_nsec = inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec = 0;
 	ei->i_dtime = le32_to_cpu(raw_inode->i_dtime);
+
+	inode->i_ino2 = le32_to_cpu(raw_inode->i_ino2);
+	inode->i_storage_flag = le32_to_cpu(raw_inode->storage_flag);
+
 	/* We now have enough fields to check if the inode was active or not.
 	 * This is needed because nfsd might try to access dead inodes
 	 * the test is that same one that e2fsck uses
@@ -1491,7 +1497,7 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 	raw_inode->i_file_acl = cpu_to_le32(ei->i_file_acl);
 	
 	//add i_ino2
-	raw_inode->i_ino2 = cpu_to_le32(inode->i_ino2);
+	//raw_inode->i_ino2 = cpu_to_le32(inode->i_ino2);
 
 	if (!S_ISREG(inode->i_mode))
 		raw_inode->i_dir_acl = cpu_to_le32(ei->i_dir_acl);
@@ -1543,9 +1549,10 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 	//add i_ino2
         raw_inode->i_ino2 = cpu_to_le32(ei->vfs_inode.i_ino);
 	raw_inode->test = 0xFFFFFFFF;
+	raw_inode->storage_flag = 0xF0F0F0F0;
 
-        printk(KERN_ALERT"[ext2/inode.c] inode->i_ino2 : %lu\n", inode->i_ino2);
         printk(KERN_ALERT"[ext2/inode.c] raw_inode->i_ino2 : %u\n", raw_inode->i_ino2);
+	printk(KERN_ALERT"[ext2/inode.c] raw_inode->storageflag : 0x%x\n", raw_inode->storage_flag);
 
 	brelse (bh);
 	return err;

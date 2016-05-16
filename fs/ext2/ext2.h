@@ -351,6 +351,7 @@ struct ext2_inode {
 
 	__le32 i_ino2;			/* inode of other dev*/
 	__le32 test;
+	__le32 storage_flag;
 };
 
 #define i_size_high	i_dir_acl
