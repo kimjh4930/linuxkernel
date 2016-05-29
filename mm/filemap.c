@@ -1410,6 +1410,14 @@ generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
 	size_t count;
 	loff_t *ppos = &iocb->ki_pos;
 
+	struct inode temp_inode = filp->f_inode;
+
+	if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) != 1){
+		printk(KERN_ALERT"[mm/filemap.c] generic_file_aio_read()\n");
+	}
+
+	//printk(KERN_ALERT"[mm/filemap.c] f_inode : %u\n", filp->f_inode);
+
 	count = 0;
 	retval = generic_segment_checks(iov, &nr_segs, &count, VERIFY_WRITE);
 	if (retval)
