@@ -705,9 +705,21 @@ struct file *fget_light(unsigned int fd, int *fput_needed)
 	struct file *file;
 	struct files_struct *files = current->files;
 
+
 	*fput_needed = 0;
 	if (atomic_read(&files->count) == 1) {
 		file = fcheck_files(files, fd);
+
+		if(MAJOR(file->f_inode->i_sb->s_dev) == 8 && MINOR(file->f_inode->i_sb->s_dev) != 1){
+			printk(KERN_ALERT"[fs/file.c] fget_light()\n");
+			printk(KERN_ALERT"[fs/file.c] i_ino : %u\n", file->f_inode->i_ino);
+			printk(KERN_ALERT"[fs/file.c] i_ino2 : %u\n", file->f_inode->i_ino2);
+			printk(KERN_ALERT"[fs/file.c] i_storage_flag : %u\n", file->f_inode->i_storage_flag);
+			printk(KERN_ALERT"[fs/file.c] f_mapping->host->i_ino : %u\n", file->f_mapping->host->i_ino);
+			printk(KERN_ALERT"[fs/file.c] fd : %u\n", fd);
+		}
+		
+
 		if (file && (file->f_mode & FMODE_PATH))
 			file = NULL;
 	} else {

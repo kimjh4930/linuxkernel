@@ -60,7 +60,7 @@ static struct dentry *ext2_lookup(struct inode * dir, struct dentry *dentry, uns
 	struct inode * inode;
 	ino_t ino;
 
-	printk(KERN_ALERT"[ext2/namei.c] ext2_lookup()\n");
+	//printk(KERN_ALERT"[ext2/namei.c] ext2_lookup()\n");
 	
 	if (dentry->d_name.len > EXT2_NAME_LEN)
 		return ERR_PTR(-ENAMETOOLONG);
@@ -69,7 +69,7 @@ static struct dentry *ext2_lookup(struct inode * dir, struct dentry *dentry, uns
 	inode = NULL;
 	if (ino) {
 		inode = ext2_iget(dir->i_sb, ino);
-		printk(KERN_ALERT"[ext2/namei.c] inode->i_ino2 : %u\n", inode->i_ino2);
+		//printk(KERN_ALERT"[ext2/namei.c] inode->i_ino2 : %u\n", inode->i_ino2);
 		if (inode == ERR_PTR(-ESTALE)) {
 			ext2_error(dir->i_sb, __func__,
 					"deleted inode referenced: %lu",

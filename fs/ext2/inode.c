@@ -1316,7 +1316,7 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 	uid_t i_uid;
 	gid_t i_gid;
 
-	printk(KERN_ALERT"[ext2/inode.c] ext2_iget()\n");
+	//printk(KERN_ALERT"[ext2/inode.c] ext2_iget()\n");
 
 	inode = iget_locked(sb, ino);
 	if (!inode)
@@ -1450,8 +1450,8 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 	int n;
 	int err = 0;
 
-        printk(KERN_ALERT"[ext2/inode.c] __ext2_inode_write()\n");
-	printk(KERN_ALERT"[ext2/inode.c] ei->vfs_inode->i_ino : %u\n", ei->vfs_inode.i_ino);
+        //printk(KERN_ALERT"[ext2/inode.c] __ext2_inode_write()\n");
+	//printk(KERN_ALERT"[ext2/inode.c] ei->vfs_inode->i_ino : %u\n", ei->vfs_inode.i_ino);
 	if (IS_ERR(raw_inode))
  		return -EIO;
 
@@ -1551,8 +1551,8 @@ static int __ext2_write_inode(struct inode *inode, int do_sync)
 	raw_inode->test = 0xFFFFFFFF;
 	raw_inode->storage_flag = 0xF0F0F0F0;
 
-        printk(KERN_ALERT"[ext2/inode.c] raw_inode->i_ino2 : %u\n", raw_inode->i_ino2);
-	printk(KERN_ALERT"[ext2/inode.c] raw_inode->storageflag : 0x%x\n", raw_inode->storage_flag);
+        //printk(KERN_ALERT"[ext2/inode.c] raw_inode->i_ino2 : %u\n", raw_inode->i_ino2);
+	//printk(KERN_ALERT"[ext2/inode.c] raw_inode->storageflag : 0x%x\n", raw_inode->storage_flag);
 
 	brelse (bh);
 	return err;
