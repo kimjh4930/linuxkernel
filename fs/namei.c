@@ -1864,8 +1864,16 @@ static int path_init(int dfd, const char *name, unsigned int flags,
 	nd->last_type = LAST_ROOT; /* if there are only slashes... */
 	nd->flags = flags | LOOKUP_JUMPED;
 	nd->depth = 0;
+
+	if(strcmp(name, "test10") == 0){
+		printk(KERN_ALERT"[fs/namei.c] flags : %x\n", flags);
+	}
+
 	if (flags & LOOKUP_ROOT) {
 		struct inode *inode = nd->root.dentry->d_inode;
+		if(strcmp(name, "/") == 0){
+			printk(KERN_ALERT"[fs/namei.c] flags & LOOKUP_ROOT : %x\n", flags&LOOKUP_ROOT);
+		}
 		if (*name) {
 			if (!can_lookup(inode))
 				return -ENOTDIR;
@@ -1896,16 +1904,23 @@ static int path_init(int dfd, const char *name, unsigned int flags,
 		}
 		nd->path = nd->root;
 	} else if (dfd == AT_FDCWD) {
+		if(strcmp(name, "test10") == 0){
+			printk(KERN_ALERT"[fs/namei.c] dfd == AT_FDCWD\n");
+			printk(KERN_ALERT"[fs/namei.c] current->file : %s\n",current->fs->pwd.dentry->d_name.name);
+		}
 		if (flags & LOOKUP_RCU) {
 			struct fs_struct *fs = current->fs;
 			unsigned seq;
-
+			
 			lock_rcu_walk();
 
 			do {
 				seq = read_seqcount_begin(&fs->seq);
 				nd->path = fs->pwd;
 				nd->seq = __read_seqcount_begin(&nd->path.dentry->d_seq);
+				if(strcmp(name, "test10") == 0){
+					printk(KERN_ALERT"[fs/namei.c] nd->seq : %u\n", nd->seq);
+				}
 			} while (read_seqcount_retry(&fs->seq, seq));
 		} else {
 			get_fs_pwd(current->fs, &nd->path);
@@ -1915,6 +1930,9 @@ static int path_init(int dfd, const char *name, unsigned int flags,
 		struct fd f = fdget_raw(dfd);
 		struct dentry *dentry;
 
+		if(strcmp(name,"test10") == 0){
+			printk(KERN_ALERT"[fs/namei.c] else\n");
+		}
 		if (!f.file)
 			return -EBADF;
 
@@ -2744,6 +2762,9 @@ static int do_last(struct nameidata *nd, struct path *path,
 	}
 
 	if (!(open_flag & O_CREAT)) {
+		if(MAJOR(nd->path.dentry->d_inode->i_sb->s_dev) == 8 && MINOR(nd->path.dentry->d_inode->i_sb->s_dev) != 1){
+			printk(KERN_ALERT"[fs/namei.c] if(!(open_flag : %d) O_CREAT : %d), %x\n", open_flag, O_CREAT, open_flag & O_CREAT);
+		}
 		if (nd->last.name[nd->last.len])
 			nd->flags |= LOOKUP_FOLLOW | LOOKUP_DIRECTORY;
 		if (open_flag & O_PATH && !(nd->flags & LOOKUP_FOLLOW))
@@ -2897,7 +2918,14 @@ finish_open_created:
 	if (error)
 		goto out;
 	file->f_path.mnt = nd->path.mnt;
+
+	if(MAJOR(nd->path.dentry->d_inode->i_sb->s_dev) == 8 && MINOR(nd->path.dentry->d_inode->i_sb->s_dev) != 1){
+		printk(KERN_ALERT"[fs/namei.c] do_last(), finishi_open_create\n");
+		printk(KERN_ALERT"[fs/namei.c] inode : %u\n", nd->path.dentry->d_inode);
+	}
+	//printk(KERN_ALERT"[fs/namei.c] do_last(), finishi_open_create\n");
 	error = finish_open(file, nd->path.dentry, NULL, opened);
+
 	if (error) {
 		if (error == -EOPENSTALE)
 			goto stale_open;
@@ -2962,6 +2990,10 @@ static struct file *path_openat(int dfd, struct filename *pathname,
 	int opened = 0;
 	int error;
 
+	if(strcmp(pathname->name, "test10") == 0){
+		printk(KERN_ALERT"[fs/namei.c] path_openat()\n");
+	}
+
 	file = get_empty_filp();
 	if (IS_ERR(file))
 		return file;
@@ -2981,6 +3013,7 @@ static struct file *path_openat(int dfd, struct filename *pathname,
 	while (unlikely(error > 0)) { /* trailing symlink */
 		struct path link = path;
 		void *cookie;
+
 		if (!(nd->flags & LOOKUP_FOLLOW)) {
 			path_put_conditional(&path, nd);
 			path_put(&nd->path);
@@ -3024,6 +3057,10 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 {
 	struct nameidata nd;
 	struct file *filp;
+
+	if(strcmp(pathname->name,"test10") == 0){
+		printk(KERN_ALERT"[fs/namei.c] do_filp_open()\n");
+	}
 
 	filp = path_openat(dfd, pathname, &nd, op, flags | LOOKUP_RCU);
 	if (unlikely(filp == ERR_PTR(-ECHILD)))

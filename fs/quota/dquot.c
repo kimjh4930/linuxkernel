@@ -1413,6 +1413,9 @@ static void __dquot_initialize(struct inode *inode, int type)
 	struct super_block *sb = inode->i_sb;
 	qsize_t rsv;
 
+	if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) != 1){
+		printk(KERN_ALERT"[fs/quota/dquota.c] __dquot_initialize()\n");
+	}
 	/* First test before acquiring mutex - solves deadlocks when we
          * re-enter the quota code and are already holding the mutex */
 	if (!dquot_active(inode))
@@ -2003,9 +2006,18 @@ int dquot_file_open(struct inode *inode, struct file *file)
 {
 	int error;
 
+	if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) != 1){
+		printk(KERN_ALERT"[fs/quota/dquot.c] dquot_file_open()\n");
+		printk(KERN_ALERT"[fs/quota/dquot.c] error : %d, file->f_mode : %x, FMODE_WRITE : %x\n", error, file->f_mode, FMODE_WRITE);
+	}
 	error = generic_file_open(inode, file);
-	if (!error && (file->f_mode & FMODE_WRITE))
+	if (!error && (file->f_mode & FMODE_WRITE)){
+		if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) != 1){
+			printk(KERN_ALERT"[fs/quota/dquot.c] before dquot_initialize()\n");
+		}
 		dquot_initialize(inode);
+	
+	}
 	return error;
 }
 EXPORT_SYMBOL(dquot_file_open);

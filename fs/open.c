@@ -654,6 +654,7 @@ static int do_dentry_open(struct file *f,
 			  int (*open)(struct inode *, struct file *),
 			  const struct cred *cred)
 {
+	//(*open) == NULL
 	static const struct file_operations empty_fops = {};
 	struct inode *inode;
 	int error;
@@ -710,6 +711,10 @@ static int do_dentry_open(struct file *f,
 	if ((f->f_mode & (FMODE_READ | FMODE_WRITE)) == FMODE_READ)
 		i_readcount_inc(inode);
 
+	if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) != 1){
+		printk(KERN_ALERT"[fs/open.c] after open()\n");
+	}
+
 	f->f_flags &= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);
 
 	file_ra_state_init(&f->f_ra, f->f_mapping->host->i_mapping);
@@ -757,6 +762,10 @@ int finish_open(struct file *file, struct dentry *dentry,
 	int error;
 	BUG_ON(*opened & FILE_OPENED); /* once it's opened, it's opened */
 
+	if(MAJOR(dentry->d_inode->i_sb->s_dev) == 8 && MINOR(dentry->d_inode->i_sb->s_dev) != 1){
+		printk(KERN_ALERT"[fs/open.c] finish_open()\n");
+	}
+
 	file->f_path.dentry = dentry;
 	error = do_dentry_open(file, open, current_cred());
 	if (!error)
@@ -787,6 +796,10 @@ struct file *dentry_open(const struct path *path, int flags,
 {
 	int error;
 	struct file *f;
+
+	if(MAJOR(path->mnt->mnt_sb->s_dev) == 8 && MINOR(path->mnt->mnt_sb->s_dev) != 1){
+		printk(KERN_ALERT"[fs/open.c] dentry_open()\n");
+	} 
 
 	validate_creds(cred);
 
@@ -935,13 +948,24 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 	if (!IS_ERR(tmp)) {
 		fd = get_unused_fd_flags(flags);
 		if (fd >= 0) {
+			if(strcmp(tmp->name,"test10") == 0){
+				printk(KERN_ALERT"[fs/open.c] do_sys_open()\n");
+				//printk(KERN_ALERT"[fs/open.c] flags : %x, mode : %x\n", flags, mode);
+				//printk(KERN_ALERT"[fs/open.c] lookup : %x\n", lookup);
+			}
 			struct file *f = do_filp_open(dfd, tmp, &op, lookup);
+
 			if (IS_ERR(f)) {
 				put_unused_fd(fd);
 				fd = PTR_ERR(f);
 			} else {
 				fsnotify_open(f);
 				fd_install(fd, f);
+
+				/*if(MAJOR(f->f_inode->i_sb->s_dev) == 8 && MINOR(f->f_inode->i_sb->s_dev) != 1){
+					printk(KERN_ALERT"[fs/open.c] do_sys_open\n");
+					printk(KERN_ALERT"[fs/open.c] fd : %u\n", fd);
+				}*/
 			}
 		}
 		putname(tmp);
@@ -1046,6 +1070,11 @@ SYSCALL_DEFINE0(vhangup)
  */
 int generic_file_open(struct inode * inode, struct file * filp)
 {
+	if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) != 1){
+		printk(KERN_ALERT"[fs/open.c] generic_file_open()");
+		printk(KERN_ALERT"[fs/open.c] ino2 : %lu\n", inode->i_ino);
+		printk(KERN_ALERT"[fs/open.c] ino2 : %lu\n", inode->i_ino2);
+	}
 	if (!(filp->f_flags & O_LARGEFILE) && i_size_read(inode) > MAX_NON_LFS)
 		return -EOVERFLOW;
 	return 0;
