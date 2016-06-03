@@ -1904,10 +1904,6 @@ static int path_init(int dfd, const char *name, unsigned int flags,
 		}
 		nd->path = nd->root;
 	} else if (dfd == AT_FDCWD) {
-		if(strcmp(name, "test10") == 0){
-			printk(KERN_ALERT"[fs/namei.c] dfd == AT_FDCWD\n");
-			printk(KERN_ALERT"[fs/namei.c] current->file : %s\n",current->fs->pwd.dentry->d_name.name);
-		}
 		if (flags & LOOKUP_RCU) {
 			struct fs_struct *fs = current->fs;
 			unsigned seq;
@@ -1918,9 +1914,6 @@ static int path_init(int dfd, const char *name, unsigned int flags,
 				seq = read_seqcount_begin(&fs->seq);
 				nd->path = fs->pwd;
 				nd->seq = __read_seqcount_begin(&nd->path.dentry->d_seq);
-				if(strcmp(name, "test10") == 0){
-					printk(KERN_ALERT"[fs/namei.c] nd->seq : %u\n", nd->seq);
-				}
 			} while (read_seqcount_retry(&fs->seq, seq));
 		} else {
 			get_fs_pwd(current->fs, &nd->path);
@@ -1930,9 +1923,6 @@ static int path_init(int dfd, const char *name, unsigned int flags,
 		struct fd f = fdget_raw(dfd);
 		struct dentry *dentry;
 
-		if(strcmp(name,"test10") == 0){
-			printk(KERN_ALERT"[fs/namei.c] else\n");
-		}
 		if (!f.file)
 			return -EBADF;
 
@@ -2762,9 +2752,6 @@ static int do_last(struct nameidata *nd, struct path *path,
 	}
 
 	if (!(open_flag & O_CREAT)) {
-		if(MAJOR(nd->path.dentry->d_inode->i_sb->s_dev) == 8 && MINOR(nd->path.dentry->d_inode->i_sb->s_dev) != 1){
-			printk(KERN_ALERT"[fs/namei.c] if(!(open_flag : %d) O_CREAT : %d), %x\n", open_flag, O_CREAT, open_flag & O_CREAT);
-		}
 		if (nd->last.name[nd->last.len])
 			nd->flags |= LOOKUP_FOLLOW | LOOKUP_DIRECTORY;
 		if (open_flag & O_PATH && !(nd->flags & LOOKUP_FOLLOW))

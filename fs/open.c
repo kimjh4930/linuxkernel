@@ -672,8 +672,8 @@ static int do_dentry_open(struct file *f,
 		printk(KERN_ALERT"[fs/open.c] do_dentry_open()\n");
 //		printk(KERN_ALERT"[fs/open.c] inode->i_sb->s_dev : %u\n", MINOR(inode->i_sb->s_dev));
 		printk(KERN_ALERT"[fs/open.c] ino : %u\n", inode->i_ino);
-		printk(KERN_ALERT"[fs/open.c] ino2 : %u\n", inode->i_ino2);
-		printk(KERN_ALERT"[fs/open.c] flag : %u\n", inode->i_storage_flag);
+		//printk(KERN_ALERT"[fs/open.c] ino2 : %u\n", inode->i_ino2);
+		//printk(KERN_ALERT"[fs/open.c] flag : %u\n", inode->i_storage_flag);
 	}
 	//printk(KERN_ALERT"[fs/open.c] inode->i_bdev->bd_dev : %u\n", inode->i_bdev->bd_dev);
 
@@ -711,9 +711,9 @@ static int do_dentry_open(struct file *f,
 	if ((f->f_mode & (FMODE_READ | FMODE_WRITE)) == FMODE_READ)
 		i_readcount_inc(inode);
 
-	if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) != 1){
-		printk(KERN_ALERT"[fs/open.c] after open()\n");
-	}
+	//if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) != 1){
+	//	printk(KERN_ALERT"[fs/open.c] after open()\n");
+	//}
 
 	f->f_flags &= ~(O_CREAT | O_EXCL | O_NOCTTY | O_TRUNC);
 
@@ -961,11 +961,6 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 			} else {
 				fsnotify_open(f);
 				fd_install(fd, f);
-
-				/*if(MAJOR(f->f_inode->i_sb->s_dev) == 8 && MINOR(f->f_inode->i_sb->s_dev) != 1){
-					printk(KERN_ALERT"[fs/open.c] do_sys_open\n");
-					printk(KERN_ALERT"[fs/open.c] fd : %u\n", fd);
-				}*/
 			}
 		}
 		putname(tmp);
@@ -1072,8 +1067,6 @@ int generic_file_open(struct inode * inode, struct file * filp)
 {
 	if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) != 1){
 		printk(KERN_ALERT"[fs/open.c] generic_file_open()");
-		printk(KERN_ALERT"[fs/open.c] ino2 : %lu\n", inode->i_ino);
-		printk(KERN_ALERT"[fs/open.c] ino2 : %lu\n", inode->i_ino2);
 	}
 	if (!(filp->f_flags & O_LARGEFILE) && i_size_read(inode) > MAX_NON_LFS)
 		return -EOVERFLOW;
