@@ -2909,6 +2909,7 @@ finish_open_created:
 	if(MAJOR(nd->path.dentry->d_inode->i_sb->s_dev) == 8 && MINOR(nd->path.dentry->d_inode->i_sb->s_dev) != 1){
 		printk(KERN_ALERT"[fs/namei.c] do_last(), finishi_open_create\n");
 		printk(KERN_ALERT"[fs/namei.c] inode : %u\n", nd->path.dentry->d_inode);
+		printk(KERN_ALERT"[fs/namei.c] name : %s\n", nd->path.dentry->d_name.name);
 	}
 	//printk(KERN_ALERT"[fs/namei.c] do_last(), finishi_open_create\n");
 	error = finish_open(file, nd->path.dentry, NULL, opened);

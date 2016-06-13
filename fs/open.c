@@ -948,8 +948,9 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 	if (!IS_ERR(tmp)) {
 		fd = get_unused_fd_flags(flags);
 		if (fd >= 0) {
+
 			if(strcmp(tmp->name,"test10") == 0){
-				printk(KERN_ALERT"[fs/open.c] do_sys_open()\n");
+				printk(KERN_ALERT"[fs/open.c] do_sys_open() : test10\n");
 				//printk(KERN_ALERT"[fs/open.c] flags : %x, mode : %x\n", flags, mode);
 				//printk(KERN_ALERT"[fs/open.c] lookup : %x\n", lookup);
 			}
