@@ -942,8 +942,11 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 {
 	struct open_flags op;
 	int lookup = build_open_flags(flags, mode, &op);
-	struct filename *tmp = getname(filename);
-	int fd = PTR_ERR(tmp);
+	struct filename *tmp;
+	int fd;
+
+	tmp = getname(filename);
+	fd = PTR_ERR(tmp);
 
 	if (!IS_ERR(tmp)) {
 		fd = get_unused_fd_flags(flags);
@@ -951,8 +954,6 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 
 			if(strcmp(tmp->name,"test10") == 0){
 				printk(KERN_ALERT"[fs/open.c] do_sys_open() : test10\n");
-				//printk(KERN_ALERT"[fs/open.c] flags : %x, mode : %x\n", flags, mode);
-				//printk(KERN_ALERT"[fs/open.c] lookup : %x\n", lookup);
 			}
 			struct file *f = do_filp_open(dfd, tmp, &op, lookup);
 

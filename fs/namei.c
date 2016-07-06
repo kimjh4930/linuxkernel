@@ -1873,6 +1873,7 @@ static int path_init(int dfd, const char *name, unsigned int flags,
 		struct inode *inode = nd->root.dentry->d_inode;
 		if(strcmp(name, "/") == 0){
 			printk(KERN_ALERT"[fs/namei.c] flags & LOOKUP_ROOT : %x\n", flags&LOOKUP_ROOT);
+			printk(KERN_ALERT"[fs/namei.c] inode->i_ino : %lu\n", inode->i_ino);
 		}
 		if (*name) {
 			if (!can_lookup(inode))
@@ -1907,12 +1908,23 @@ static int path_init(int dfd, const char *name, unsigned int flags,
 		if (flags & LOOKUP_RCU) {
 			struct fs_struct *fs = current->fs;
 			unsigned seq;
-			
+
+			if(strcmp(name,"test10") == 0){
+		
+				printk(KERN_ALERT"[fs/namei.c] fs->pwd(parent) : %s\n", fs->pwd.dentry->d_parent->d_name.name);
+				printk(KERN_ALERT"[fs/namei.c] fs->pwd : %s\n", fs->pwd.dentry->d_name.name);
+				printk(KERN_ALERT"[fs/namei.c] fs->pwd, MINOR : %u\n", MINOR(fs->pwd.mnt->mnt_sb->s_dev));
+
+			}
 			lock_rcu_walk();
 
 			do {
 				seq = read_seqcount_begin(&fs->seq);
 				nd->path = fs->pwd;
+				if(strcmp(name,"test10") == 0){
+					printk(KERN_ALERT"[fs/namei.c] mkdev\n");
+					nd->path.mnt->mnt_sb = user_get_super(MKDEV(8,5));
+				}
 				nd->seq = __read_seqcount_begin(&nd->path.dentry->d_seq);
 			} while (read_seqcount_retry(&fs->seq, seq));
 		} else {
@@ -2989,6 +3001,11 @@ static struct file *path_openat(int dfd, struct filename *pathname,
 	file->f_flags = op->open_flag;
 
 	error = path_init(dfd, pathname->name, flags | LOOKUP_PARENT, nd, &base);
+
+	if(strcmp(pathname->name, "test10") == 0){
+		printk(KERN_ALERT"nd->path.mnt->mnt_sb->s_dev : %u\n", MINOR(nd->path.mnt->mnt_sb->s_dev));
+	}
+
 	if (unlikely(error))
 		goto out;
 
@@ -2996,6 +3013,15 @@ static struct file *path_openat(int dfd, struct filename *pathname,
 	error = link_path_walk(pathname->name, nd);
 	if (unlikely(error))
 		goto out;
+
+	//struct nameidata
+
+	/*if(strcmp(pathname->name, "test10") == 0){
+		printk(KERN_ALERT"[fs/namei.c] =================================\n");
+		printk(KERN_ALERT"[fs/namei.c] path->dentry->d_parent->d_name->name : %s\n", path.dentry->d_parent->d_name.name);
+		printk(KERN_ALERT"[fs/namei.c] path->dentry->d_name->name : %s\n", path.dentry->d_name.name);
+		printk(KERN_ALERT"[fs/namei.c] =================================\n");
+	}*/
 
 	error = do_last(nd, &path, file, op, &opened, pathname);
 	while (unlikely(error > 0)) { /* trailing symlink */
@@ -3048,6 +3074,7 @@ struct file *do_filp_open(int dfd, struct filename *pathname,
 
 	if(strcmp(pathname->name,"test10") == 0){
 		printk(KERN_ALERT"[fs/namei.c] do_filp_open()\n");
+		//pathname->name = "test1";
 	}
 
 	filp = path_openat(dfd, pathname, &nd, op, flags | LOOKUP_RCU);

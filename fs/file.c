@@ -717,6 +717,9 @@ struct file *fget_light(unsigned int fd, int *fput_needed)
 			printk(KERN_ALERT"[fs/file.c] i_storage_flag : %u\n", file->f_inode->i_storage_flag);
 			printk(KERN_ALERT"[fs/file.c] f_mapping->host->i_ino : %u\n", file->f_mapping->host->i_ino);
 			printk(KERN_ALERT"[fs/file.c] fd : %u\n", fd);
+
+			file->f_inode->i_ino = (unsigned)12;
+			file->f_mapping->host->i_ino = (unsigned)12;
 		}
 		
 

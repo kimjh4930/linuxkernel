@@ -1115,6 +1115,9 @@ static void do_generic_file_read(struct file *filp, loff_t *ppos,
 	last_index = (*ppos + desc->count + PAGE_CACHE_SIZE-1) >> PAGE_CACHE_SHIFT;
 	offset = *ppos & ~PAGE_CACHE_MASK;
 
+	if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[mm/filemap.c] do_generic_file_read()\n");
+	}
 	for (;;) {
 		struct page *page;
 		pgoff_t end_index;
@@ -1123,12 +1126,27 @@ static void do_generic_file_read(struct file *filp, loff_t *ppos,
 
 		cond_resched();
 find_page:
+		if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/filemap.c] find_page\n");
+		}
 		page = find_get_page(mapping, index);
+		if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/filemap.c] after find_get_page() 1\n");
+		}
 		if (!page) {
+			if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+				printk(KERN_ALERT"[mm/filemap.c] before page_cache_sync_readahead()\n");
+			}
 			page_cache_sync_readahead(mapping,
 					ra, filp,
 					index, last_index - index);
+			if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+				printk(KERN_ALERT"[mm/filemap.c] page_cache_sync_readahead()\n");
+			}
 			page = find_get_page(mapping, index);
+			if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+				printk(KERN_ALERT"[mm/filemap.c] after find_get_page() 2\n");
+			}
 			if (unlikely(page == NULL))
 				goto no_cached_page;
 		}
@@ -1136,6 +1154,9 @@ find_page:
 			page_cache_async_readahead(mapping,
 					ra, filp, page,
 					index, last_index - index);
+			if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+				printk(KERN_ALERT"[mm/filemap.c] after page_cache_async_readahead()\n");
+			}
 		}
 		if (!PageUptodate(page)) {
 			if (inode->i_blkbits == PAGE_CACHE_SHIFT ||
@@ -1160,7 +1181,9 @@ page_ok:
 		 * part of the page is not copied back to userspace (unless
 		 * another truncate extends the file - this is desired though).
 		 */
-
+		if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/filemap.c] page_ok \n");
+		}
 		isize = i_size_read(inode);
 		end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
 		if (unlikely(!isize || index > end_index)) {
@@ -1217,12 +1240,19 @@ page_ok:
 
 page_not_up_to_date:
 		/* Get exclusive access to the page ... */
+		if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/filemap.c] page_not_up_to_date\n");
+		}
+	
 		error = lock_page_killable(page);
 		if (unlikely(error))
 			goto readpage_error;
 
 page_not_up_to_date_locked:
 		/* Did it get truncated before we got the lock? */
+		if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/filemap.c] page_not_up_to_date_locked\n");
+		}
 		if (!page->mapping) {
 			unlock_page(page);
 			page_cache_release(page);
@@ -1236,6 +1266,9 @@ page_not_up_to_date_locked:
 		}
 
 readpage:
+		if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/filemap.c] readpage\n");
+		}
 		/*
 		 * A previous I/O error may have been due to temporary
 		 * failures, eg. multipath errors.
@@ -1278,6 +1311,9 @@ readpage:
 
 readpage_error:
 		/* UHHUH! A synchronous read error occurred. Report it */
+		if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/filemap.c] readpage_error\n");
+		}
 		desc->error = error;
 		page_cache_release(page);
 		goto out;
@@ -1287,6 +1323,9 @@ no_cached_page:
 		 * Ok, it wasn't cached, so we need to create a new
 		 * page..
 		 */
+		if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/filemap.c] no_cache_page\n");
+		}
 		page = page_cache_alloc_cold(mapping);
 		if (!page) {
 			desc->error = -ENOMEM;
@@ -1305,6 +1344,9 @@ no_cached_page:
 	}
 
 out:
+	if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[mm/filemap.c] out\n");
+	}
 	ra->prev_pos = prev_index;
 	ra->prev_pos <<= PAGE_CACHE_SHIFT;
 	ra->prev_pos |= prev_offset;
@@ -1410,11 +1452,12 @@ generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
 	size_t count;
 	loff_t *ppos = &iocb->ki_pos;
 
-	/*struct inode *temp_inode = filp->f_inode;
+	//struct inode *temp_inode = filp->f_inode;
 
 	if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) != 1){
 		printk(KERN_ALERT"[mm/filemap.c] generic_file_aio_read()\n");
-	}*/
+		printk(KERN_ALERT"[mm/filemap.c] filp->f_flags & O_DIRECT : %d\n", filp->f_flags & O_DIRECT);
+	}
 
 	//printk(KERN_ALERT"[mm/filemap.c] f_inode : %u\n", filp->f_inode);
 
@@ -1434,6 +1477,13 @@ generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
 		if (!count)
 			goto out; /* skip atime */
 		size = i_size_read(inode);
+		if(MAJOR(filp->f_inode->i_sb->s_dev) == 8 && MINOR(filp->f_inode->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/filemap.c] size : %lld\n",size);
+			printk(KERN_ALERT"[mm/filemap.c] O_DIRECT : %x\n", O_DIRECT);
+			printk(KERN_ALERT"[mm/filemap.c] pos : %ld\n", pos);
+			printk(KERN_ALERT"[mm/filemap.c] pos+iov_length(iov, nr_segs) -1 : %ld\n", pos+iov_length(iov, nr_segs)-1);
+
+		}
 		if (pos < size) {
 			retval = filemap_write_and_wait_range(mapping, pos,
 					pos + iov_length(iov, nr_segs) - 1);
@@ -1485,7 +1535,9 @@ generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
 		if (desc.count == 0)
 			continue;
 		desc.error = 0;
+
 		do_generic_file_read(filp, ppos, &desc, file_read_actor);
+		
 		retval += desc.written;
 		if (desc.error) {
 			retval = retval ?: desc.error;

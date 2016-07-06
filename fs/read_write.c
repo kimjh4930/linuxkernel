@@ -354,6 +354,12 @@ ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 {
 	ssize_t ret;
 
+	if(MAJOR(file->f_inode->i_sb->s_dev) == 8 && MINOR(file->f_inode->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[fs/read_write.c] vfs_read()\n");
+		printk(KERN_ALERT"[fs/read_write.c] pos : %lld\n", *pos);
+		printk(KERN_ALERT"[fs/read_write.c] file->f_mapping->host->i_ino : %u\n", file->f_mapping->host->i_ino);
+	}
+
 	if (!(file->f_mode & FMODE_READ))
 		return -EBADF;
 	if (!file->f_op || (!file->f_op->read && !file->f_op->aio_read))
@@ -362,6 +368,10 @@ ssize_t vfs_read(struct file *file, char __user *buf, size_t count, loff_t *pos)
 		return -EFAULT;
 
 	ret = rw_verify_area(READ, file, pos, count);
+
+	if(MAJOR(file->f_inode->i_sb->s_dev) == 8 && MINOR(file->f_inode->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[fs/read_write.c] ret : %d\n", ret);
+	}
 	if (ret >= 0) {
 		count = ret;
 		if (file->f_op->read)

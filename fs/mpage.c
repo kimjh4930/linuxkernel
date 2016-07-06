@@ -172,12 +172,23 @@ do_mpage_readpage(struct bio *bio, struct page *page, unsigned nr_pages,
 	unsigned nblocks;
 	unsigned relative_block;
 
+	if(MAJOR(page->mapping->host->i_sb->s_dev) == 8 && MINOR(page->mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[fs/mpage.c] do_mpage_readpage()\n");
+		printk(KERN_ALERT"[fs/mpage.c] i_ino : %u\n",inode->i_ino);
+		printk(KERN_ALERT"[fs/mpage.c] i_ino2 : %u\n",inode->i_ino2);
+	}
+
 	if (page_has_buffers(page))
 		goto confused;
 
 	block_in_file = (sector_t)page->index << (PAGE_CACHE_SHIFT - blkbits);
 	last_block = block_in_file + nr_pages * blocks_per_page;
 	last_block_in_file = (i_size_read(inode) + blocksize - 1) >> blkbits;
+	
+	if(MAJOR(page->mapping->host->i_sb->s_dev) == 8 && MINOR(page->mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[fs/mpage.c] block_in_file : %lu, last_block : %lu, last_block_in_file : %lu\n", block_in_file, last_block, last_block_in_file);
+	}
+
 	if (last_block > last_block_in_file)
 		last_block = last_block_in_file;
 	page_block = 0;
@@ -186,10 +197,17 @@ do_mpage_readpage(struct bio *bio, struct page *page, unsigned nr_pages,
 	 * Map blocks using the result from the previous get_blocks call first.
 	 */
 	nblocks = map_bh->b_size >> blkbits;
+	//if(MAJOR(page->mapping->host->i_sb->s_dev) == 8 && MINOR(page->mapping->host->i_sb->s_dev) == 6){
+	//	printk(KERN_ALERT"[fs/mpage.c] map_ph->b_size : %u, blkbits : %d, nblocks : %u\n", map_bh->b_size, blkbits, nblocks);
+	//}
 	if (buffer_mapped(map_bh) && block_in_file > *first_logical_block &&
 			block_in_file < (*first_logical_block + nblocks)) {
 		unsigned map_offset = block_in_file - *first_logical_block;
 		unsigned last = nblocks - map_offset;
+
+		if(MAJOR(page->mapping->host->i_sb->s_dev) == 8 && MINOR(page->mapping->host->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[fs/mpage.c] in if\n");
+		}
 
 		for (relative_block = 0; ; relative_block++) {
 			if (relative_block == last) {
@@ -372,6 +390,11 @@ mpage_readpages(struct address_space *mapping, struct list_head *pages,
 	struct buffer_head map_bh;
 	unsigned long first_logical_block = 0;
 
+	if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[fs/mpage.c] mpage_readpages()\n");
+		printk(KERN_ALERT"[fs/mpage.c] nr_pages : %u\n", nr_pages);
+	}
+
 	map_bh.b_state = 0;
 	map_bh.b_size = 0;
 	for (page_idx = 0; page_idx < nr_pages; page_idx++) {
@@ -406,6 +429,9 @@ int mpage_readpage(struct page *page, get_block_t get_block)
 	struct buffer_head map_bh;
 	unsigned long first_logical_block = 0;
 
+	if(MAJOR(page->mapping->host->i_sb->s_dev) == 8 && MINOR(page->mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[fs/mpage.c] mpage_readpage()\n");
+	}
 	map_bh.b_state = 0;
 	map_bh.b_size = 0;
 	bio = do_mpage_readpage(bio, page, 1, &last_block_in_bio,

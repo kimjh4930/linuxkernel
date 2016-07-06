@@ -115,9 +115,19 @@ static int read_pages(struct address_space *mapping, struct file *filp,
 	unsigned page_idx;
 	int ret;
 
+	if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[mm/readahead.c] read_pages()\n");
+	}
+
 	blk_start_plug(&plug);
 
 	if (mapping->a_ops->readpages) {
+		if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/readahead.c] before readpages\n");
+			printk(KERN_ALERT"[mm/readahead.c] filp->f_inode->i_ino : %u", filp->f_inode->i_ino);
+			//filp->f_inode->i_ino = (unsigned)12;
+			//mapping->host->i_ino = (unsigned)12;
+		}
 		ret = mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
 		/* Clean up the remaining pages */
 		put_pages_list(pages);
@@ -161,6 +171,10 @@ __do_page_cache_readahead(struct address_space *mapping, struct file *filp,
 	int page_idx;
 	int ret = 0;
 	loff_t isize = i_size_read(inode);
+
+	if(MAJOR(inode->i_sb->s_dev) == 8 && MINOR(inode->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[mm/readahead.c] __do_page_cache_readahead()\n");
+	}
 
 	if (isize == 0)
 		goto out;
@@ -254,6 +268,10 @@ unsigned long ra_submit(struct file_ra_state *ra,
 		       struct address_space *mapping, struct file *filp)
 {
 	int actual;
+
+	if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[mm/readahead.c] ra_submit()\n");
+	}
 
 	actual = __do_page_cache_readahead(mapping, filp,
 					ra->start, ra->size, ra->async_size);
@@ -402,11 +420,20 @@ ondemand_readahead(struct address_space *mapping,
 {
 	unsigned long max = max_sane_readahead(ra->ra_pages);
 
+	if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[mm/readahead.c] ondemand_readahead()\n");
+	}
+
 	/*
 	 * start of file
 	 */
-	if (!offset)
+	if (!offset){
+		if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/readahead.c] start of file\n");
+		}
+		
 		goto initial_readahead;
+	}
 
 	/*
 	 * It's the expected callback offset, assume sequential access.
@@ -470,6 +497,9 @@ ondemand_readahead(struct address_space *mapping,
 	return __do_page_cache_readahead(mapping, filp, offset, req_size, 0);
 
 initial_readahead:
+	if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[mm/readahead.c] initial_readahead\n");
+	}
 	ra->start = offset;
 	ra->size = get_init_ra_size(req_size, max);
 	ra->async_size = ra->size > req_size ? ra->size - req_size : ra->size;
@@ -480,6 +510,9 @@ readit:
 	 * If so, trigger the readahead marker hit now, and merge
 	 * the resulted next readahead window into the current one.
 	 */
+	if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[mm/readahead.c] readit\n");
+	}
 	if (offset == ra->start && ra->size == ra->async_size) {
 		ra->async_size = get_next_ra_size(ra, max);
 		ra->size += ra->async_size;
@@ -506,12 +539,23 @@ void page_cache_sync_readahead(struct address_space *mapping,
 			       struct file_ra_state *ra, struct file *filp,
 			       pgoff_t offset, unsigned long req_size)
 {
+
+	if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+		printk(KERN_ALERT"[mm/readahead.c] page_cache_sync_readahead()\n");
+	}
 	/* no read-ahead */
-	if (!ra->ra_pages)
+	if (!ra->ra_pages){
+		if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/readahead.c] no read-ahead\n");
+		}
 		return;
+	}
 
 	/* be dumb */
 	if (filp && (filp->f_mode & FMODE_RANDOM)) {
+		if(MAJOR(mapping->host->i_sb->s_dev) == 8 && MINOR(mapping->host->i_sb->s_dev) == 6){
+			printk(KERN_ALERT"[mm/readahead.c] be dumb, before force_page_cache_readahead()\n");
+		}
 		force_page_cache_readahead(mapping, filp, offset, req_size);
 		return;
 	}

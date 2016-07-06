@@ -647,7 +647,7 @@ static int ext2_get_blocks(struct inode *inode,
 		count++;
 		/*map more blocks*/
 		while (count < maxblocks && count <= blocks_to_boundary) {
-			ext2_fsblk_t blk;
+			ext2_fsblk_t blk; // type of ext2_fsblk_t is unsigned long
 
 			if (!verify_chain(chain, chain + depth - 1)) {
 				/*
@@ -795,6 +795,7 @@ static int
 ext2_readpages(struct file *file, struct address_space *mapping,
 		struct list_head *pages, unsigned nr_pages)
 {
+	printk(KERN_ALERT"[ext2/inode.c] ext2_readpages()\n");
 	return mpage_readpages(mapping, pages, nr_pages, ext2_get_block);
 }
 
@@ -1350,7 +1351,8 @@ struct inode *ext2_iget (struct super_block *sb, unsigned long ino)
 	inode->i_atime.tv_nsec = inode->i_mtime.tv_nsec = inode->i_ctime.tv_nsec = 0;
 	ei->i_dtime = le32_to_cpu(raw_inode->i_dtime);
 
-	inode->i_ino2 = le32_to_cpu(raw_inode->i_ino2);
+	//inode->i_ino2 = le32_to_cpu(raw_inode->i_ino2);
+	inode->i_ino2 = 10;
 	inode->i_storage_flag = le32_to_cpu(raw_inode->storage_flag);
 
 	/* We now have enough fields to check if the inode was active or not.
